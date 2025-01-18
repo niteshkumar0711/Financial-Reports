@@ -13,8 +13,10 @@
             <header>Personal Finance Tracker</header>
             <section id="budget-overview">
                 <h2>Budget Overview</h2>
-                <p>Total Budget: Rs. 0</p>
-                <p>Remaining Balance: Rs. 0</p>
+                <p>Total Budget: Rs. {{ total_budget }}</p>
+                <p>Total Expenses: Rs. {{ total_budget - remaining_balance }}</p>
+                <p>Remaining Balance: Rs. {{ remaining_balance }}</p>
+                <button onclick="location.href='/set_budget'">Set/Update Budget</button>
             </section>
             
             <section id="recent-expences">
