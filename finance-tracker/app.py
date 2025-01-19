@@ -1,19 +1,28 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
+from datetime import datetime
 
 app = Flask(__name__)
+app.secret_key = 'lxcifer0711'
 
 
-expenses = []
+# expenses = []
 total_budget = 10000
 
 
+def get_today_date():
+    return datetime.today().strftime('%Y-%m-%d')
+
 @app.route("/")
 def index():
+    expenses = session.get('expenses',[])
     total_expenses = sum([float(expense["amount"]) for expense in expenses])
     remaining_balance = total_budget - total_expenses
+    today = get_today_date()
+    recent_expenses = [expense for expense in expenses if expense['date'] == today]
+
     return render_template(
         "index.html",
-        expenses=expenses,
+        expenses=recent_expenses,
         total_budget=total_budget,
         remaining_balance=remaining_balance,
     )
@@ -21,7 +30,8 @@ def index():
 
 @app.route("/add-expense", methods=["GET", "POST"])
 def add_expense():
-    global expenses
+    expenses = session.get('expenses',[])
+#     today = datetime.today().strftime('%Y-%m-%d')
 
     if request.method == "POST":
         name = request.form.get("name")
@@ -29,6 +39,10 @@ def add_expense():
         category = request.form.get("category")
         date = request.form.get("date")
         description = request.form.get("description")
+
+        today = datetime.today().strftime('%Y-%m-%d')
+
+
 
         if name and amount and category and date:
             expenses.append(
@@ -41,6 +55,7 @@ def add_expense():
                     or "No description provided",
                 }
             )
+            session['expenses'] = expenses
             return redirect("/")
         else:
             return render_template("add_expense.html", error="All fields are required!")
@@ -62,7 +77,7 @@ def set_budget():
 
 @app.route('/view-expenses')
 def view_expenses():
-    global expenses
+    expenses = session.get('expenses', [])
     return render_template('view_expenses.html', expenses=expenses)
 
 
