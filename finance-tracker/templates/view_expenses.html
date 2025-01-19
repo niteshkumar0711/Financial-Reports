@@ -1,11 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Expenses</title>
 </head>
+
 <body>
-    
+    <header>
+        <h1>View All Expenses</h1>
+    </header>
+    <main>
+        <section id="all-expenses">
+            <h2>Expenses List</h2>
+            <ul>
+                {%if expenses%}
+                {% for expense in expenses %}
+                <li>
+                    <div>
+                        <strong>Name:</strong> {{expense['name']}}<br>
+                        <strong>Amount:</strong> {{expense['amount']}}<br>
+                        <strong>Category:</strong> {{expense['category']}}<br>
+                        <strong>Description:</strong> {{expense['description']}}<br>
+                        <strong>Date:</strong> {{expense['date']}}
+                    </div>
+                </li>
+                {% endfor %}
+                {% else %}
+                <li>No expenses added yet.</li>
+                {% endif %}
+            </ul>
+        </section>
+        <button onclick="location.href='/'">Back to Dashboard</button>
+    </main>
 </body>
+
 </html>
