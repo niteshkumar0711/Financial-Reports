@@ -8,6 +8,11 @@ app.secret_key = 'lxcifer0711'
 # expenses = []
 total_budget = 10000
 
+@app.before_request
+def set_default_budget():
+    if 'total_budget' not in session:
+        session['total_budget'] = 10000
+
 
 def get_today_date():
     return datetime.today().strftime('%Y-%m-%d')
@@ -15,8 +20,14 @@ def get_today_date():
 @app.route("/")
 def index():
     expenses = session.get('expenses',[])
+    total_budget = session.get('total_budget',0)
     total_expenses = sum([float(expense["amount"]) for expense in expenses])
     remaining_balance = total_budget - total_expenses
+    over_budget_warning = False
+
+    if total_expenses > total_budget:
+        over_budget_warning = True
+
     today = get_today_date()
     recent_expenses = [expense for expense in expenses if expense['date'] == today]
 
@@ -25,6 +36,7 @@ def index():
         expenses=recent_expenses,
         total_budget=total_budget,
         remaining_balance=remaining_balance,
+        over_budget_warning=over_budget_warning
     )
 
 
@@ -63,21 +75,55 @@ def add_expense():
     return render_template("add_expense.html")
 
 
-
 @app.route("/set-budget", methods=["GET", "POST"])
 def set_budget():
-    global total_budget
-
     if request.method == "POST":
         new_budget = request.form.get("budget")
         if new_budget and new_budget.isdigit():
             total_budget = float(new_budget)
+            session['total_budget'] = float(new_budget)
             return redirect("/")
     return render_template("set_budget.html")
+
+
+@app.route("/reset-budget", methods=["POST"])
+def reset_budget():
+    expenses = session.get('expenses',[])
+    session['total_budget'] = 10000
+    session['expenses'] = expenses
+    return redirect("/")
+
 
 @app.route('/view-expenses')
 def view_expenses():
     expenses = session.get('expenses', [])
+
+    category_filter = request.args.get("category_filter")
+    date_filter = request.args.get("date_filter")
+
+    if category_filter:
+        expenses = [expense for expense in expenses if expense['category'].lower() == category_filter.lower()]
+    if date_filter:
+        expenses = [expense for expense in expenses if expense['date']== date_filter]
+
+    sort_by = request.args.get("sort_by")
+    if sort_by == "amount_asc":
+        expenses = sorted(expenses, key=lambda x: x['amount'])
+    elif sort_by == "amount_desc":
+        expenses = sorted(expenses, key=lambda x: x["amount"], reverse=True)
+    elif sort_by == "date_asc":
+        expenses = sorted(expenses, key=lambda x: x["date"])
+    elif sort_by == "date_desc":
+        expenses = sorted(expenses, key=lambda x: x["date"], reverse=True)
+    elif sort_by == "name_asc":
+        expenses = sorted(expenses, key=lambda x: x["name"].lower())
+    elif sort_by == "name_desc":
+        expenses = sorted(expenses, key=lambda x: x["name"].lower(), reverse=True)
+    elif sort_by == "category_asc":
+        expenses = sorted(expenses, key=lambda x: x["category"].lower())
+    elif sort_by == "category_desc":
+        expenses = sorted(expenses, key=lambda x: x["category"].lower(), reverse=True)
+
     return render_template('view_expenses.html', expenses=expenses)
 
 

@@ -5,6 +5,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Expenses</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename = 'style.css') }}">
+    <style>
+        .dropdown{
+            position: relative;
+            display: inline-block;
+            font-size: 14px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f1f1f1;
+            min-width: 120px;
+            box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 5px;
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 8px 12px;
+            text-decoration: none;
+            display: block;
+            font-size: 12px;
+        }
+        
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        .dropbtn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .dropbtn {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 
 <body>
@@ -12,8 +61,26 @@
         <h1>View All Expenses</h1>
     </header>
     <main>
+        <div class="dropdown">
+            <button class="dropbtn">Sort By</button>
+            <div class="dropdown-content">
+                <a href="?sort_by=amount_asc">Amount (Low to High)</a>
+                <a href="?sort_by=amount_desc">Amount (High to Low)</a>
+                <a href="?sort_by=date_asc">Date (Old to New)</a>
+                <a href="?sort_by=date_desc">Date (New to Old)</a>
+                <a href="?sort_by=name_asc">Name (A to Z)</a>
+                <a href="?sort_by=name_desc">Name (Z to A)</a>
+                <a href="?sort_by=category_asc">Category (A to Z)</a>
+                <a href="?sort_by=category_desc">Category (Z to A)</a>
+            </div>
+        </div>
         <section id="all-expenses">
             <h2>Expenses List</h2>
+
+            <form method="POST">
+                <label for="category_filter">Filet</label>
+            </form>
+
             <ul>
                 {%if expenses%}
                 {% for expense in expenses %}
